@@ -29,11 +29,26 @@
       flex:none;
       margin:3px 0px;
     }
+    #messageArea{
+      display:none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="row">
+    <div id="userFormArea" class="row">
+      <div class="col-md-12">
+        <form class="" action="" id="userForm">
+          <div class="form-group">
+            <input name="" class="form-control" id="username">
+            <br>
+            <input type="submit" value="Login" class="btn btn-primary">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="messageArea" class="row">
       <div class="col-md-4">
         <div class="card card-body bg-light">
           <h3>Online Users</h3>
@@ -57,9 +72,14 @@
   <script>
     $(function(){
       let socket = io.connect();
-      var $messageForm = $('#messageForm');
-      var $message = $('#message');
-      var $chat = $('#chat');
+      let $messageForm = $('#messageForm');
+      let $message = $('#message');
+      let $chat = $('#chat');
+      let $userForm = $('#userForm');
+      let $userFormArea = $('#userFormArea');
+      let $messageArea = $('#messageArea');
+      let $users = $('#users');
+      let $username = $('#username');
 
       $messageForm.submit(function(e){
         e.preventDefault();
@@ -69,11 +89,29 @@
       });
 
       socket.on('new message',function(data){
-        console.log(data);
+        console.log(socket);
         $chat.append(`<div class="card card-body bg-light message">${data.msg}</div>`);
       });
-      socket.on('new user',function(user){
-        console.log(user);
+
+      $userForm.submit(function (e) {
+        e.preventDefault();
+        console.log('New User');
+        socket.emit('new user', $username.val(), function(data){
+          if(data){
+            $userFormArea.hide();
+            $messageArea.show().css("display","flex");
+          }
+        });
+        $username.val('');
+      });
+      socket.on('get users',function(data){
+        let html = '';
+        console.log(data);
+        data.forEach(element => {
+          console.log(element);
+          html+= `<li class="list-group-item">${element}</li>`;
+        });
+        $users.html(html);
       });
     });
   </script>
