@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>IO Chat</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+  crossorigin="anonymous">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .container{height:100vh;
+    padding-top:50px;}
+    .container>row{
+      max-height:100vh;
+    }
+    .chat-col{
+      display:flex;
+      flex-direction: column;
+      max-height: calc(100vh - 50px);
+    }
+    .chat{
+      height:100%;
+      width:100%;
+      display:flex;
+      overflow:scroll;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+    .message{
+      flex:none;
+      margin:3px 0px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card card-body bg-light">
+          <h3>Online Users</h3>
+          <ul class="list-group" id="users">
+
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-8 chat-col">
+        <div class="chat" id="chat"></div>
+        <form class="" action="" id="messageForm">
+          <div class="form-group">
+            <textarea name="" class="form-control" id="message" cols="30" rows="2"></textarea>
+            <br>
+            <input type="submit" value="Send Message" class="btn btn-primary">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      let socket = io.connect();
+      var $messageForm = $('#messageForm');
+      var $message = $('#message');
+      var $chat = $('#chat');
+
+      $messageForm.submit(function(e){
+        e.preventDefault();
+        console.log('Submitted');
+        socket.emit('send message',$message.val());
+        $message.val('');
+      });
+
+      socket.on('new message',function(data){
+        console.log(data);
+        $chat.append(`<div class="card card-body bg-light message">${data.msg}</div>`);
+      });
+      socket.on('new user',function(user){
+        console.log(user);
+      });
+    });
+  </script>
+</body>
+</html>
